@@ -4,7 +4,12 @@
   "scripts": {
     "build": "tsc"
   },
-  "main": "bin/index.js",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/topas/flickr-data-organizer"
+  },
+  "main": "./bin/index.js",
+  "bin": "bin/index.js",
   "author": "Tomáš Pastorek",
   "license": "MIT",
   "devDependencies": {
