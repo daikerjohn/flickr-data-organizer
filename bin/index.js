@@ -1,11 +1,21 @@
 #!/usr/bin/env node
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
+//var fs = require('fs');
+//var path = requrie('path');
 const fs = require("fs");
 const path = require("path");
-const dataDir = "./data";
+const yargs = require("yargs");
+console.log(yargs.argv);
+var dataDir = "./data";
+if (yargs.argv.dataDir) {
+    dataDir = yargs.argv.dataDir;
+}
 const albumJsonFile = path.join(dataDir, "albums.json");
-const exportDir = "./export";
+var exportDir = "./export";
+if (yargs.argv.exportDir) {
+    exportDir = yargs.argv.exportDir;
+}
 const getAlbumJson = (file) => {
     const albumJsonData = fs.readFileSync(file, "utf8");
     if (albumJsonData) {
@@ -28,15 +38,22 @@ const sortAlbumsByCreatedTimestamp = (albums) => {
 };
 const getAlbumExportPath = (album, albumIndex) => {
     const title = escapeForFilename(album.title);
-    return path.join(exportDir, `${albumIndex} - ${title}`);
+    //return path.join(exportDir, `${albumIndex} - ${title}`)
+    return path.join(exportDir, `${title}`);
 };
 const escapeForFilename = (filename) => filename.trim().replace(/[\\/:"*?<>|]+/g, "-");
 const getPhotoNameWithIndex = (filename, photoId, photoIndex) => {
     const name = escapeForFilename(getPhotoJson(photoId).name);
     const ext = path.parse(filename).ext;
-    return `${photoIndex} - ${name}${ext}`;
+    //console.log(`${name} *** ${ext}`)
+    if (name.toLowerCase().endsWith(ext.toLowerCase())) {
+        return name;
+    }
+    console.log(`${name} *** ${ext}`);
+    //return `${photoIndex} - ${name}${ext}`
+    return `${name}${ext}`;
 };
-console.log("Flickr Export Organizer");
+console.log("Flickr Data Organizer - v2.0.0");
 console.log("Reading albums...");
 const albums = sortAlbumsByCreatedTimestamp(getAlbumJson(albumJsonFile));
 console.log("Reading file list...");
@@ -45,6 +62,7 @@ const filenames = fs.readdirSync(dataDir).filter(f => {
     return ext !== '.json' && ext !== '.zip';
 });
 albums.albums.forEach((album, albumIndex) => {
+    console.log(`Processing ${album.title}`);
     album.photos.forEach((photoId, photoIndex) => {
         const filename = filenames.find(filename => filename.includes(`_${photoId}_o.`) || filename.includes(`_${photoId}.`));
         if (!filename) {
@@ -64,7 +82,8 @@ albums.albums.forEach((album, albumIndex) => {
             console.error(`Unable to copy photo ${filename}`, e);
             return;
         }
-        console.log(`${filename} -> ${fileExportPath}`);
+        //console.log(`${filename} -> ${fileExportPath}`)    
     });
 });
+console.log("Done.");
 //# sourceMappingURL=index.js.map
